@@ -7,7 +7,6 @@ const CovidDashboard: React.FC = () => {
   const rootStore = useContext(RootStoreContext);
   const {
     loadStateDistrictWiseData,
-    stateDistrictWiseData,
     loadingIntial,
     getCovid19StateWiseData,
   } = rootStore.covidStore;
@@ -17,9 +16,7 @@ const CovidDashboard: React.FC = () => {
   }, [loadStateDistrictWiseData]);
 
   if (loadingIntial) return <div>Loading</div>;
-
-  //console.log(getCovid19StateWiseData);
-  return <CovidDataList listData={stateDistrictWiseData!} />;
+  return <CovidDataList states={getCovid19StateWiseData!} />;
 };
 
 export default observer(CovidDashboard);

@@ -1,10 +1,8 @@
 import React from "react";
 import { Table } from "semantic-ui-react";
-import { IStateDistrictData } from "../../../models/statedistrictdata";
+import { IStateInfo } from "../../../models/stateinfo";
 
-const CovidDataList: React.FC<{ listData: IStateDistrictData }> = ({
-  listData,
-}) => {
+const CovidDataList: React.FC<{ states: IStateInfo[] }> = ({ states }) => {
   return (
     <Table celled selectable>
       <Table.Header>
@@ -19,14 +17,18 @@ const CovidDataList: React.FC<{ listData: IStateDistrictData }> = ({
       </Table.Header>
 
       <Table.Body>
-        <Table.Row>
-          <Table.Cell>John</Table.Cell>
-          <Table.Cell>No Action</Table.Cell>
-          <Table.Cell>None</Table.Cell>
-          <Table.Cell>John</Table.Cell>
-          <Table.Cell>No Action</Table.Cell>
-          <Table.Cell>None</Table.Cell>
-        </Table.Row>
+        {states != null &&
+          states.length > 0 &&
+          states.map((state) => (
+            <Table.Row key={state.name}>
+              <Table.Cell>{state.name}</Table.Cell>
+              <Table.Cell>{state.totals.confirmed}</Table.Cell>
+              <Table.Cell>{state.totals.active}</Table.Cell>
+              <Table.Cell>{state.totals.recovered}</Table.Cell>
+              <Table.Cell>{state.totals.deaths}</Table.Cell>
+              <Table.Cell>{state.totals.lastupdatedtime}</Table.Cell>
+            </Table.Row>
+          ))}
       </Table.Body>
     </Table>
   );

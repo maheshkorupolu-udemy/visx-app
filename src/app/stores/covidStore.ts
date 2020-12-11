@@ -19,8 +19,7 @@ export default class CovidStore {
       timeLineData: observable,
       loadingIntial: observable,
       stateDistrictWiseData: observable,
-      covid19StateWiseRegistry: observable,
-      //getCovid19StateWiseData: computed,
+      getCovid19StateWiseData: computed,
       loadTimeLineData: action,
       loadStateDistrictWiseData: action,
     });
@@ -30,13 +29,14 @@ export default class CovidStore {
   timeLineData: ITimeLineData[] = [];
   stateDistrictWiseData: IStateDistrictData | null = null;
   loadingIntial = false;
-  covid19StateWiseRegistry = new Map();
 
-  getCovid19StateWiseData = () => {
+  get getCovid19StateWiseData() {
     if (this.stateDistrictWiseData != null) {
-      return Object.entries(this.stateDistrictWiseData?.statewise);
+      return this.stateDistrictWiseData?.statewise;
+    } else {
+      return null;
     }
-  };
+  }
 
   loadTimeLineData = async () => {
     this.timeLineData = [];
@@ -72,9 +72,8 @@ export default class CovidStore {
             statecode: result.total_values.statecode,
             statenotes: result.total_values.statenotes,
           },
-          statewise: this.getStateDistrictWiseDate(result),
+          statewise: this.getStates(result),
         };
-        console.log(this.stateDistrictWiseData);
         this.loadingIntial = false;
       });
     } catch (error) {
@@ -82,7 +81,7 @@ export default class CovidStore {
     }
   };
 
-  getStateDistrictWiseDate = (info: any) => {
+  getStates = (info: any) => {
     let stateInfoLst: IStateInfo[] = [];
     Object.entries(info.state_wise).forEach(([key, value]) => {
       const statewise: any = value;
@@ -99,15 +98,14 @@ export default class CovidStore {
           statecode: statewise.statecode,
           statenotes: statewise.statenotes,
         },
-        districts: this.getDistrictWiseData(statewise),
+        districts: this.getDistricts(statewise),
       };
       stateInfoLst.push(stateInfo);
     });
     return stateInfoLst;
   };
 
-  getDistrictWiseData = (info: any) => {
-    console.log(info.district);
+  getDistricts = (info: any) => {
     let districts: IDistrictInfo[] = [];
     Object.entries(info.district).forEach(([key, value]) => {
       const districtwise: any = value;
