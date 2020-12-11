@@ -6,6 +6,7 @@ import {
   computed,
 } from "mobx";
 import agent from "../api/agent";
+import { IDistrictInfo } from "../models/districtinfo";
 import { IStateDistrictData } from "../models/statedistrictdata";
 import { IStateInfo } from "../models/stateinfo";
 import { ITimeLineData } from "../models/timelinedata";
@@ -57,16 +58,6 @@ export default class CovidStore {
     this.loadingIntial = true;
     try {
       const result = await agent.statedistrictdata.details();
-      Object.entries(result.state_wise).forEach(([key, value]) => {
-        let v: unknown = value as any;
-        let va: any = v;
-        console.log(va.active);
-        /*if (typeof value === "object" && value !== null) {
-          Object.entries(value).forEach(([key, value]) => {
-            console.log(value);
-          });
-        }*/
-      });
       runInAction(() => {
         this.stateDistrictWiseData = {
           keyvalues: null,
@@ -81,8 +72,9 @@ export default class CovidStore {
             statecode: result.total_values.statecode,
             statenotes: result.total_values.statenotes,
           },
-          statewise: [],
+          statewise: this.getStateDistrictWiseDate(result),
         };
+        console.log(this.stateDistrictWiseData);
         this.loadingIntial = false;
       });
     } catch (error) {
@@ -92,6 +84,43 @@ export default class CovidStore {
 
   getStateDistrictWiseDate = (info: any) => {
     let stateInfoLst: IStateInfo[] = [];
-    Object.entries(info.state_wise).forEach(([key, value]) => {});
+    Object.entries(info.state_wise).forEach(([key, value]) => {
+      const statewise: any = value;
+      let stateInfo: IStateInfo = {
+        name: key,
+        totals: {
+          active: statewise.active,
+          confirmed: statewise.confirmed,
+          deaths: statewise.deaths,
+          lastupdatedtime: statewise.lastupdatedtime,
+          migratedother: statewise.migratedother,
+          recovered: statewise.recovered,
+          state: statewise.state,
+          statecode: statewise.statecode,
+          statenotes: statewise.statenotes,
+        },
+        districts: this.getDistrictWiseData(statewise),
+      };
+      stateInfoLst.push(stateInfo);
+    });
+    return stateInfoLst;
+  };
+
+  getDistrictWiseData = (info: any) => {
+    console.log(info.district);
+    let districts: IDistrictInfo[] = [];
+    Object.entries(info.district).forEach(([key, value]) => {
+      const districtwise: any = value;
+      let districtInfo: IDistrictInfo = {
+        name: key,
+        notes: districtwise.notes,
+        active: districtwise.active,
+        confirmed: districtwise.confirmed,
+        deceased: districtwise.deceased,
+        recovered: districtwise.recovered,
+      };
+      districts.push(districtInfo);
+    });
+    return districts;
   };
 }

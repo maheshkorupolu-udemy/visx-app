@@ -18,7 +18,7 @@ const CovidDashboard: React.FC = () => {
 
   if (loadingIntial) return <div>Loading</div>;
 
-  console.log(getCovid19StateWiseData);
+  //console.log(getCovid19StateWiseData);
   return <CovidDataList listData={stateDistrictWiseData!} />;
 };
 
