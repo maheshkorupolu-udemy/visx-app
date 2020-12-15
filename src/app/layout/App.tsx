@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
 import "./App.css";
-import "semantic-ui-css/semantic.min.css";
+import "semantic-ui-less/semantic.less";
 import HomePage from "../features/home/HomePage";
 
 function App() {

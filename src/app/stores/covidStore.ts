@@ -18,6 +18,7 @@ export default class CovidStore {
     makeObservable(this, {
       timeLineData: observable,
       loadingIntial: observable,
+      loadingTimeLineData: observable,
       stateDistrictWiseData: observable,
       getCovid19StateWiseData: computed,
       loadTimeLineData: action,
@@ -29,6 +30,7 @@ export default class CovidStore {
   timeLineData: ITimeLineData[] = [];
   stateDistrictWiseData: IStateDistrictData | null = null;
   loadingIntial = false;
+  loadingTimeLineData = false;
 
   get getCovid19StateWiseData() {
     if (this.stateDistrictWiseData != null) {
@@ -40,16 +42,19 @@ export default class CovidStore {
 
   loadTimeLineData = async () => {
     this.timeLineData = [];
-    this.loadingIntial = true;
+    this.loadingTimeLineData = true;
     try {
       const timeLineDataLst = await agent.covidtimelinedata.list();
       runInAction(() => {
         timeLineDataLst.forEach((result) => {
           this.timeLineData.push(result);
         });
-        this.loadingIntial = false;
+        this.loadingTimeLineData = false;
       });
     } catch (error) {
+      runInAction(() => {
+        this.loadingTimeLineData = false;
+      });
       console.log(error);
     }
   };
@@ -77,6 +82,9 @@ export default class CovidStore {
         this.loadingIntial = false;
       });
     } catch (error) {
+      runInAction(() => {
+        this.loadingIntial = false;
+      });
       console.log(error);
     }
   };

@@ -18,5 +18,5 @@
     "useDefineForClassFields": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "./typings-custom/**/*.ts"]
+  "include": ["src", "./typings-custom/**/*.ts", "craco.config.js"]
 }
