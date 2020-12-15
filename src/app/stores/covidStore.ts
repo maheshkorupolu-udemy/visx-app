@@ -6,9 +6,11 @@ import {
   computed,
 } from "mobx";
 import agent from "../api/agent";
+import { ICountryStatsHistory } from "../models/countrystathistory";
 import { IDistrictInfo } from "../models/districtinfo";
 import { IStateDistrictData } from "../models/statedistrictdata";
 import { IStateInfo } from "../models/stateinfo";
+import { IStatsHistory } from "../models/statshistory";
 import { ITimeLineData } from "../models/timelinedata";
 import { RootStore } from "./rootStore";
 
@@ -20,6 +22,7 @@ export default class CovidStore {
       loadingIntial: observable,
       loadingTimeLineData: observable,
       stateDistrictWiseData: observable,
+      countryStatHistory: observable,
       getCovid19StateWiseData: computed,
       loadTimeLineData: action,
       loadStateDistrictWiseData: action,
@@ -31,6 +34,54 @@ export default class CovidStore {
   stateDistrictWiseData: IStateDistrictData | null = null;
   loadingIntial = false;
   loadingTimeLineData = false;
+  countryStatHistory: ICountryStatsHistory[] = [];
+
+  loadcountryStatHistory = async () => {
+    this.loadingIntial = true;
+    try {
+      const result = await agent.covidstathistory.info();
+      const stat = result.data;
+      runInAction(() => {
+        Object.entries(stat).forEach(([key, value]) => {
+          const countryInfo: any = value;
+          let countryStat: ICountryStatsHistory = {
+            countrystat: {
+              loc: "india",
+              day: countryInfo.day,
+              confirmed: countryInfo.summary.total,
+              discharged: countryInfo.summary.discharged,
+              deaths: countryInfo.summary.deaths,
+            },
+            regional: this.getregions(countryInfo),
+          };
+          this.countryStatHistory.push(countryStat);
+        });
+        this.loadingIntial = false;
+        console.log(this.countryStatHistory);
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.loadingIntial = false;
+      });
+      console.log(error);
+    }
+  };
+
+  getregions = (info: any) => {
+    let stateInfoLst: IStatsHistory[] = [];
+    Object.entries(info.regional).forEach(([key, value]) => {
+      const stateInfo: any = value;
+      let statsHistory: IStatsHistory = {
+        loc: stateInfo.loc,
+        day: info.day,
+        confirmed: stateInfo.totalConfirmed,
+        discharged: stateInfo.discharged,
+        deaths: stateInfo.deaths,
+      };
+      stateInfoLst.push(statsHistory);
+    });
+    return stateInfoLst;
+  };
 
   get getCovid19StateWiseData() {
     if (this.stateDistrictWiseData != null) {

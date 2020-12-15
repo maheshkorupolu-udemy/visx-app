@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 import { toast } from "react-toastify";
+import { ICountryStatsHistory } from "../models/countrystathistory";
 import { ITimeLineData } from "../models/timelinedata";
 
 axios.interceptors.response.use(undefined, (error) => {
@@ -27,6 +28,15 @@ axios.interceptors.response.use(undefined, (error) => {
 
 const responseBody = (response: AxiosResponse) => response.data;
 
+const sleep = (ms: number) => (response: AxiosResponse) =>
+  new Promise<AxiosResponse>((resolve) =>
+    setTimeout(() => resolve(response), ms)
+  );
+
+const covidrequests = {
+  get: (url: string) => axios.get(url).then(responseBody),
+};
+
 const requests = {
   get: (url: string) =>
     axios
@@ -37,6 +47,7 @@ const requests = {
           "x-rapidapi-host": "corona-virus-world-and-india-data.p.rapidapi.com",
         },
       })
+      .then(sleep(10000))
       .then(responseBody),
 };
 
@@ -54,9 +65,21 @@ const statedistrictdata = {
     ),
 };
 
+const covidstathistory = {
+  info: () =>
+    covidrequests.get("https://api.rootnet.in/covid19-in/stats/history"),
+};
+
+const covidstatlatest = {
+  info: () =>
+    covidrequests.get("https://api.rootnet.in/covid19-in/stats/latest"),
+};
+
 const coviddata = {
   covidtimelinedata,
   statedistrictdata,
+  covidstathistory,
+  covidstatlatest,
 };
 
 export default coviddata;

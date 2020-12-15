@@ -64,6 +64,7 @@
     "@semantic-ui-react/craco-less": "^1.2.1",
     "@types/d3-time-format": "^3.0.0",
     "@types/react-simple-maps": "^1.0.3",
+    "@types/recharts": "^1.8.18",
     "semantic-ui-less": "^2.4.1"
   }
 }

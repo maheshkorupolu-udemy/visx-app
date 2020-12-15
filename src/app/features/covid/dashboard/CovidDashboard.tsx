@@ -12,13 +12,19 @@ const CovidDashboard: React.FC = () => {
     loadStateDistrictWiseData,
     loadingIntial,
     getCovid19StateWiseData,
+    loadTimeLineData,
+    loadingTimeLineData,
+    timeLineData,
+    loadcountryStatHistory,
   } = rootStore.covidStore;
 
   useEffect(() => {
+    loadcountryStatHistory();
     loadStateDistrictWiseData();
-  }, [loadStateDistrictWiseData]);
+    loadTimeLineData();
+  }, [loadStateDistrictWiseData, loadTimeLineData]);
 
-  if (loadingIntial)
+  if (loadingIntial && loadingTimeLineData)
     return <LoadingComponent content="Loading...."></LoadingComponent>;
 
   return (
@@ -31,7 +37,22 @@ const CovidDashboard: React.FC = () => {
         </Grid.Column>
         <Grid.Column width={8}>
           <Grid.Row>
-            <CovidChart></CovidChart>
+            <CovidChart
+              charttype={"totalconfirmed"}
+              chartdata={timeLineData}
+            ></CovidChart>
+          </Grid.Row>
+          <Grid.Row>
+            <CovidChart
+              charttype={"totaldeceased"}
+              chartdata={timeLineData}
+            ></CovidChart>
+          </Grid.Row>
+          <Grid.Row>
+            <CovidChart
+              charttype={"totalrecovered"}
+              chartdata={timeLineData}
+            ></CovidChart>
           </Grid.Row>
         </Grid.Column>
       </Grid>
