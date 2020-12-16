@@ -1,8 +1,8 @@
 import React from "react";
 import { Table } from "semantic-ui-react";
-import { IStateInfo } from "../../../models/stateinfo";
+import { IStatsHistory } from "../../../models/statshistory";
 
-const CovidDataList: React.FC<{ states: IStateInfo[] }> = ({ states }) => {
+const CovidDataList: React.FC<{ states: IStatsHistory[] }> = ({ states }) => {
   return (
     <Table celled selectable>
       <Table.Header>
@@ -12,7 +12,6 @@ const CovidDataList: React.FC<{ states: IStateInfo[] }> = ({ states }) => {
           <Table.HeaderCell>Active</Table.HeaderCell>
           <Table.HeaderCell>Recovered</Table.HeaderCell>
           <Table.HeaderCell>Deceased</Table.HeaderCell>
-          <Table.HeaderCell>Last Updated Time</Table.HeaderCell>
         </Table.Row>
       </Table.Header>
 
@@ -20,13 +19,12 @@ const CovidDataList: React.FC<{ states: IStateInfo[] }> = ({ states }) => {
         {states != null &&
           states.length > 0 &&
           states.map((state) => (
-            <Table.Row key={state.name}>
-              <Table.Cell>{state.name}</Table.Cell>
-              <Table.Cell>{state.totals.confirmed}</Table.Cell>
-              <Table.Cell>{state.totals.active}</Table.Cell>
-              <Table.Cell>{state.totals.recovered}</Table.Cell>
-              <Table.Cell>{state.totals.deaths}</Table.Cell>
-              <Table.Cell>{state.totals.lastupdatedtime}</Table.Cell>
+            <Table.Row key={state.loc}>
+              <Table.Cell>{state.loc}</Table.Cell>
+              <Table.Cell>{state.confirmed}</Table.Cell>
+              <Table.Cell>{state.active}</Table.Cell>
+              <Table.Cell>{state.discharged}</Table.Cell>
+              <Table.Cell>{state.deaths}</Table.Cell>
             </Table.Row>
           ))}
       </Table.Body>

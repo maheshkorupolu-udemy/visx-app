@@ -1,5 +1,5 @@
-import React from "react";
 import { observer } from "mobx-react-lite";
+import React, { useContext, useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -9,20 +9,34 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import { ITimeLineData } from "../../../models/timelinedata";
+import LoadingComponent from "../../../layout/LoadingComponent";
+import { RootStoreContext } from "../../../stores/rootStore";
 
 const CovidChart: React.FC<{
   charttype: string;
-  chartdata: ITimeLineData[];
-}> = ({ charttype, chartdata }) => {
+}> = ({ charttype }) => {
+  const rootStore = useContext(RootStoreContext);
+  const {
+    loadingHistoryStats,
+    loadcountryStatHistory,
+    getCountryHistoryStats,
+  } = rootStore.covidStore;
+
+  useEffect(() => {
+    loadcountryStatHistory();
+  }, [loadcountryStatHistory]);
+
+  if (loadingHistoryStats)
+    return <LoadingComponent content="Loading...."></LoadingComponent>;
+
   return (
     <LineChart
       width={600}
       height={300}
-      data={chartdata}
+      data={getCountryHistoryStats}
       margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
     >
-      <XAxis dataKey="date" />
+      <XAxis dataKey="day" />
       <YAxis />
       <CartesianGrid strokeDasharray="3 3" />
       <Tooltip />
@@ -37,4 +51,4 @@ const CovidChart: React.FC<{
   );
 };
 
-export default CovidChart;
+export default observer(CovidChart);

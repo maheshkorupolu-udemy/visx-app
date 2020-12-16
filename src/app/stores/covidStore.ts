@@ -1,43 +1,29 @@
-import {
-  action,
-  observable,
-  runInAction,
-  makeObservable,
-  computed,
-} from "mobx";
+import { observable, runInAction, makeObservable, computed } from "mobx";
 import agent from "../api/agent";
 import { ICountryStatsHistory } from "../models/countrystathistory";
-import { IDistrictInfo } from "../models/districtinfo";
-import { IStateDistrictData } from "../models/statedistrictdata";
-import { IStateInfo } from "../models/stateinfo";
 import { IStatsHistory } from "../models/statshistory";
-import { ITimeLineData } from "../models/timelinedata";
 import { RootStore } from "./rootStore";
 
 export default class CovidStore {
   rootStore: RootStore;
   constructor(rootStore: RootStore) {
     makeObservable(this, {
-      timeLineData: observable,
-      loadingIntial: observable,
-      loadingTimeLineData: observable,
-      stateDistrictWiseData: observable,
+      loadingHistoryStats: observable,
+      loadingLatestStats: observable,
       countryStatHistory: observable,
-      getCovid19StateWiseData: computed,
-      loadTimeLineData: action,
-      loadStateDistrictWiseData: action,
+      countryStatLatest: observable,
+      getCountryHistoryStats: computed,
     });
 
     this.rootStore = rootStore;
   }
-  timeLineData: ITimeLineData[] = [];
-  stateDistrictWiseData: IStateDistrictData | null = null;
-  loadingIntial = false;
-  loadingTimeLineData = false;
+  loadingHistoryStats = false;
+  loadingLatestStats = false;
   countryStatHistory: ICountryStatsHistory[] = [];
+  countryStatLatest: ICountryStatsHistory | null = null;
 
   loadcountryStatHistory = async () => {
-    this.loadingIntial = true;
+    this.loadingHistoryStats = true;
     try {
       const result = await agent.covidstathistory.info();
       const stat = result.data;
@@ -48,6 +34,9 @@ export default class CovidStore {
             countrystat: {
               loc: "india",
               day: countryInfo.day,
+              active:
+                countryInfo.summary.total -
+                (countryInfo.summary.discharged + countryInfo.summary.deaths),
               confirmed: countryInfo.summary.total,
               discharged: countryInfo.summary.discharged,
               deaths: countryInfo.summary.deaths,
@@ -56,12 +45,11 @@ export default class CovidStore {
           };
           this.countryStatHistory.push(countryStat);
         });
-        this.loadingIntial = false;
-        console.log(this.countryStatHistory);
+        this.loadingHistoryStats = false;
       });
     } catch (error) {
       runInAction(() => {
-        this.loadingIntial = false;
+        this.loadingHistoryStats = false;
       });
       console.log(error);
     }
@@ -74,6 +62,8 @@ export default class CovidStore {
       let statsHistory: IStatsHistory = {
         loc: stateInfo.loc,
         day: info.day,
+        active:
+          stateInfo.totalConfirmed - (stateInfo.discharged + stateInfo.deaths),
         confirmed: stateInfo.totalConfirmed,
         discharged: stateInfo.discharged,
         deaths: stateInfo.deaths,
@@ -83,101 +73,37 @@ export default class CovidStore {
     return stateInfoLst;
   };
 
-  get getCovid19StateWiseData() {
-    if (this.stateDistrictWiseData != null) {
-      return this.stateDistrictWiseData?.statewise;
-    } else {
-      return null;
-    }
-  }
-
-  loadTimeLineData = async () => {
-    this.timeLineData = [];
-    this.loadingTimeLineData = true;
+  loadcountryStatLatest = async () => {
+    this.loadingLatestStats = true;
     try {
-      const timeLineDataLst = await agent.covidtimelinedata.list();
+      const result = await agent.covidstatlatest.info();
+      const stat = result.data;
       runInAction(() => {
-        timeLineDataLst.forEach((result) => {
-          this.timeLineData.push(result);
-        });
-        this.loadingTimeLineData = false;
-      });
-    } catch (error) {
-      runInAction(() => {
-        this.loadingTimeLineData = false;
-      });
-      console.log(error);
-    }
-  };
-
-  loadStateDistrictWiseData = async () => {
-    this.loadingIntial = true;
-    try {
-      const result = await agent.statedistrictdata.details();
-      runInAction(() => {
-        this.stateDistrictWiseData = {
-          keyvalues: null,
-          totals: {
-            active: result.total_values.active,
-            confirmed: result.total_values.confirmed,
-            deaths: result.total_values.deaths,
-            lastupdatedtime: result.total_values.lastupdatedtime,
-            migratedother: result.total_values.migratedother,
-            recovered: result.total_values.recovered,
-            state: result.total_values.state,
-            statecode: result.total_values.statecode,
-            statenotes: result.total_values.statenotes,
+        this.countryStatLatest = {
+          countrystat: {
+            loc: "india",
+            day: stat.day,
+            active:
+              stat.summary.total -
+              (stat.summary.discharged + stat.summary.deaths),
+            confirmed: stat.summary.total,
+            discharged: stat.summary.discharged,
+            deaths: stat.summary.deaths,
           },
-          statewise: this.getStates(result),
+          regional: this.getregions(stat),
         };
-        this.loadingIntial = false;
+        this.loadingLatestStats = false;
       });
     } catch (error) {
       runInAction(() => {
-        this.loadingIntial = false;
+        this.loadingLatestStats = false;
       });
       console.log(error);
     }
   };
 
-  getStates = (info: any) => {
-    let stateInfoLst: IStateInfo[] = [];
-    Object.entries(info.state_wise).forEach(([key, value]) => {
-      const statewise: any = value;
-      let stateInfo: IStateInfo = {
-        name: key,
-        totals: {
-          active: statewise.active,
-          confirmed: statewise.confirmed,
-          deaths: statewise.deaths,
-          lastupdatedtime: statewise.lastupdatedtime,
-          migratedother: statewise.migratedother,
-          recovered: statewise.recovered,
-          state: statewise.state,
-          statecode: statewise.statecode,
-          statenotes: statewise.statenotes,
-        },
-        districts: this.getDistricts(statewise),
-      };
-      stateInfoLst.push(stateInfo);
-    });
-    return stateInfoLst;
-  };
-
-  getDistricts = (info: any) => {
-    let districts: IDistrictInfo[] = [];
-    Object.entries(info.district).forEach(([key, value]) => {
-      const districtwise: any = value;
-      let districtInfo: IDistrictInfo = {
-        name: key,
-        notes: districtwise.notes,
-        active: districtwise.active,
-        confirmed: districtwise.confirmed,
-        deceased: districtwise.deceased,
-        recovered: districtwise.recovered,
-      };
-      districts.push(districtInfo);
-    });
-    return districts;
-  };
+  get getCountryHistoryStats() {
+    const lst = this.countryStatHistory.map((stat) => stat.countrystat);
+    return lst.sort((x, y) => +new Date(x.day) - +new Date(y.day));
+  }
 }
