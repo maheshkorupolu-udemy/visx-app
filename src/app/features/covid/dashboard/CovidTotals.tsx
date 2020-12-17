@@ -10,20 +10,20 @@ const CovidTotals: React.FC<{
   return (
     <div>
       <Divider hidden />
-      <Statistic.Group color="red" size="small">
-        <Statistic>
+      <Statistic.Group size="small">
+        <Statistic color="grey">
           <Statistic.Value>{confirmed}</Statistic.Value>
           <Statistic.Label>Confirmed</Statistic.Label>
         </Statistic>
-        <Statistic>
+        <Statistic color="black">
           <Statistic.Value>{active}</Statistic.Value>
           <Statistic.Label>Active</Statistic.Label>
         </Statistic>
-        <Statistic>
+        <Statistic color="green">
           <Statistic.Value>{recovered}</Statistic.Value>
           <Statistic.Label>Recovered</Statistic.Label>
         </Statistic>
-        <Statistic>
+        <Statistic color="red">
           <Statistic.Value>{deceased}</Statistic.Value>
           <Statistic.Label>Deceased</Statistic.Label>
         </Statistic>

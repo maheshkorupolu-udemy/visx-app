@@ -1,4 +1,10 @@
-import { observable, runInAction, makeObservable, computed } from "mobx";
+import {
+  observable,
+  runInAction,
+  makeObservable,
+  computed,
+  action,
+} from "mobx";
 import agent from "../api/agent";
 import { ICountryStatsHistory } from "../models/countrystathistory";
 import { IStatsHistory } from "../models/statshistory";
@@ -12,7 +18,10 @@ export default class CovidStore {
       loadingLatestStats: observable,
       countryStatHistory: observable,
       countryStatLatest: observable,
+      chartData: observable,
+      chartRegion: observable,
       getCountryHistoryStats: computed,
+      dataForChart: action,
     });
 
     this.rootStore = rootStore;
@@ -21,6 +30,8 @@ export default class CovidStore {
   loadingLatestStats = false;
   countryStatHistory: ICountryStatsHistory[] = [];
   countryStatLatest: ICountryStatsHistory | null = null;
+  chartData: IStatsHistory[] = [];
+  chartRegion: string = "India";
 
   loadcountryStatHistory = async () => {
     this.loadingHistoryStats = true;
@@ -45,6 +56,7 @@ export default class CovidStore {
           };
           this.countryStatHistory.push(countryStat);
         });
+        this.dataForChart("in");
         this.loadingHistoryStats = false;
       });
     } catch (error) {
@@ -106,4 +118,25 @@ export default class CovidStore {
     const lst = this.countryStatHistory.map((stat) => stat.countrystat);
     return lst.sort((x, y) => +new Date(x.day) - +new Date(y.day));
   }
+
+  dataForChart = (type: string) => {
+    if (this.countryStatHistory != null) {
+      if (type === "in") {
+        this.chartRegion = "India";
+        this.chartData = this.countryStatHistory
+          .map((stat) => stat.countrystat)
+          .sort((x, y) => +new Date(x.day) - +new Date(y.day));
+      } else {
+        const lst: IStatsHistory[] | any = this.countryStatHistory
+          .map((stat) => stat.regional?.filter((x) => x.loc === type))
+          .filter(function (ele) {
+            return ele?.length! > 0;
+          })
+          .map((a) => a![0])
+          .sort((x, y) => +new Date(x.day) - +new Date(y.day));
+        this.chartData = lst;
+        this.chartRegion = type;
+      }
+    }
+  };
 }

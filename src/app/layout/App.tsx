@@ -1,14 +1,18 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect } from "react";
 import "./App.css";
 import "semantic-ui-less/semantic.less";
 import HomePage from "../features/home/HomePage";
 
-function App() {
+const App = () => {
+  useEffect(() => {
+    document.title = "Coronavirus Update (Live)";
+  }, []);
+
   return (
     <Fragment>
       <HomePage />
     </Fragment>
   );
-}
+};
 
 export default App;

@@ -19,7 +19,7 @@ const CovidChart: React.FC<{
   const {
     loadingHistoryStats,
     loadcountryStatHistory,
-    getCountryHistoryStats,
+    chartData,
   } = rootStore.covidStore;
 
   useEffect(() => {
@@ -33,7 +33,7 @@ const CovidChart: React.FC<{
     <LineChart
       width={600}
       height={300}
-      data={getCountryHistoryStats}
+      data={chartData}
       margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
     >
       <XAxis dataKey="day" />
