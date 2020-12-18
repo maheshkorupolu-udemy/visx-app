@@ -1,12 +1,8 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Table } from "semantic-ui-react";
 import { IStatsHistory } from "../../../models/statshistory";
-import { RootStoreContext } from "../../../stores/rootStore";
 
 const CovidDataList: React.FC<{ states: IStatsHistory[] }> = ({ states }) => {
-  const rootStore = useContext(RootStoreContext);
-  const { dataForChart } = rootStore.covidStore;
-
   /*const handleClick = () => {
     
   };*/
@@ -29,9 +25,9 @@ const CovidDataList: React.FC<{ states: IStatsHistory[] }> = ({ states }) => {
           states.map((state) => (
             <Table.Row
               key={state.loc}
-              onMouseOver={() => {
+              /*onMouseOver={() => {
                 dataForChart(state.loc);
-              }}
+              }}*/
             >
               <Table.Cell>{state.loc}</Table.Cell>
               <Table.Cell>{state.confirmed}</Table.Cell>

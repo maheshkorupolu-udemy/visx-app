@@ -1,6 +1,14 @@
 import { observer } from "mobx-react-lite";
 import React, { useContext, useEffect } from "react";
-import { Container, Grid, List, Segment, Header } from "semantic-ui-react";
+import {
+  Container,
+  Grid,
+  List,
+  Segment,
+  Header,
+  Select,
+  Divider,
+} from "semantic-ui-react";
 import LoadingComponent from "../../../layout/LoadingComponent";
 import { RootStoreContext } from "../../../stores/rootStore";
 import CovidDataList from "./CovidDataList";
@@ -16,6 +24,8 @@ const CovidDashboard: React.FC = () => {
     loadcountryStatLatest,
     countryStatLatest,
     chartRegion,
+    getStateOptions,
+    dataForChart,
   } = rootStore.covidStore;
 
   useEffect(() => {
@@ -33,7 +43,7 @@ const CovidDashboard: React.FC = () => {
           <Grid.Column width={16}>
             <Segment>
               <Container text textAlign="center">
-                <Header as="h2">COVID-19 CORONAVIRUS PANDEMIC</Header>
+                <Header as="h2">COVID-19 CORONAVIRUS PANDEMIC INDIA</Header>
               </Container>
               <Container text textAlign="center">
                 <Header as="h4">
@@ -45,13 +55,18 @@ const CovidDashboard: React.FC = () => {
           </Grid.Column>
         </Grid.Row>
         <Grid.Row>
-          <Grid.Column width={16}>
-            <CovidTotals
-              confirmed={countryStatLatest?.countrystat.confirmed!}
-              active={countryStatLatest?.countrystat.active!}
-              recovered={countryStatLatest?.countrystat.discharged!}
-              deceased={countryStatLatest?.countrystat.deaths!}
-            ></CovidTotals>
+          <Grid.Column width={8}>
+            <CovidTotals></CovidTotals>
+          </Grid.Column>
+          <Grid.Column width={8}>
+            <Divider hidden={true}></Divider>
+            <Select
+              placeholder="Select state"
+              options={getStateOptions}
+              onChange={(e, data) => {
+                dataForChart(data.value as string);
+              }}
+            />
           </Grid.Column>
         </Grid.Row>
         <Grid.Row>

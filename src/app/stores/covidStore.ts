@@ -7,7 +7,9 @@ import {
 } from "mobx";
 import agent from "../api/agent";
 import { ICountryStatsHistory } from "../models/countrystathistory";
+import { IOptions } from "../models/options";
 import { IStatsHistory } from "../models/statshistory";
+import { ITotals } from "../models/totals";
 import { RootStore } from "./rootStore";
 
 export default class CovidStore {
@@ -20,8 +22,11 @@ export default class CovidStore {
       countryStatLatest: observable,
       chartData: observable,
       chartRegion: observable,
+      totals: observable,
       getCountryHistoryStats: computed,
       dataForChart: action,
+      getTotals: computed,
+      getStateOptions: computed,
     });
 
     this.rootStore = rootStore;
@@ -32,6 +37,7 @@ export default class CovidStore {
   countryStatLatest: ICountryStatsHistory | null = null;
   chartData: IStatsHistory[] = [];
   chartRegion: string = "India";
+  totals: ITotals | null = null;
 
   loadcountryStatHistory = async () => {
     this.loadingHistoryStats = true;
@@ -53,6 +59,14 @@ export default class CovidStore {
               deaths: countryInfo.summary.deaths,
             },
             regional: this.getregions(countryInfo),
+          };
+          this.totals = {
+            active:
+              countryInfo.summary.total -
+              (countryInfo.summary.discharged + countryInfo.summary.deaths),
+            confirmed: countryInfo.summary.total,
+            discharged: countryInfo.summary.discharged,
+            deaths: countryInfo.summary.deaths,
           };
           this.countryStatHistory.push(countryStat);
         });
@@ -136,7 +150,32 @@ export default class CovidStore {
           .sort((x, y) => +new Date(x.day) - +new Date(y.day));
         this.chartData = lst;
         this.chartRegion = type;
+        this.totals = this.getTotals;
       }
     }
   };
+
+  get getStateOptions() {
+    let stateOptions: IOptions[] = [];
+    const regions = this.countryStatLatest?.regional?.map((regions) => regions);
+    regions?.forEach((region) => {
+      stateOptions.push({
+        value: region.loc,
+        key: region.loc,
+        text: region.loc,
+      });
+    });
+    return stateOptions;
+  }
+
+  get getTotals() {
+    let region = this.chartData;
+    let lastIndex = region.length - 1;
+    return {
+      active: region[lastIndex].active,
+      confirmed: region[lastIndex].confirmed,
+      discharged: region[lastIndex].discharged,
+      deaths: region[lastIndex].deaths,
+    };
+  }
 }

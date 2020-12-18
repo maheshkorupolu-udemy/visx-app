@@ -1,35 +1,34 @@
-import React from "react";
+import { observer } from "mobx-react-lite";
+import React, { useContext } from "react";
 import { Divider, Statistic } from "semantic-ui-react";
+import { RootStoreContext } from "../../../stores/rootStore";
 
-const CovidTotals: React.FC<{
-  confirmed: number;
-  active: number;
-  recovered: number;
-  deceased: number;
-}> = ({ confirmed, active, recovered, deceased }) => {
+const CovidTotals: React.FC = () => {
+  const rootStore = useContext(RootStoreContext);
+  const { totals } = rootStore.covidStore;
+  if (totals == null) return <div>Loading</div>;
   return (
     <div>
       <Divider hidden />
       <Statistic.Group size="small">
         <Statistic color="grey">
-          <Statistic.Value>{confirmed}</Statistic.Value>
+          <Statistic.Value>{totals!.confirmed}</Statistic.Value>
           <Statistic.Label>Confirmed</Statistic.Label>
         </Statistic>
         <Statistic color="black">
-          <Statistic.Value>{active}</Statistic.Value>
+          <Statistic.Value>{totals!.active}</Statistic.Value>
           <Statistic.Label>Active</Statistic.Label>
         </Statistic>
         <Statistic color="green">
-          <Statistic.Value>{recovered}</Statistic.Value>
+          <Statistic.Value>{totals!.discharged}</Statistic.Value>
           <Statistic.Label>Recovered</Statistic.Label>
         </Statistic>
         <Statistic color="red">
-          <Statistic.Value>{deceased}</Statistic.Value>
+          <Statistic.Value>{totals!.deaths}</Statistic.Value>
           <Statistic.Label>Deceased</Statistic.Label>
         </Statistic>
       </Statistic.Group>
     </div>
   );
 };
-
-export default CovidTotals;
+export default observer(CovidTotals);
