@@ -26,6 +26,8 @@ const CovidDashboard: React.FC = () => {
     chartRegion,
     getStateOptions,
     dataForChart,
+    covidFilter,
+    monthOptions,
   } = rootStore.covidStore;
 
   useEffect(() => {
@@ -64,7 +66,16 @@ const CovidDashboard: React.FC = () => {
               placeholder="Select state"
               options={getStateOptions}
               onChange={(e, data) => {
-                dataForChart(data.value as string);
+                covidFilter.state = data.value as string;
+                dataForChart();
+              }}
+            />
+            <Select
+              placeholder="Select month"
+              options={monthOptions}
+              onChange={(e, data) => {
+                covidFilter.month = data.value as number;
+                dataForChart();
               }}
             />
           </Grid.Column>

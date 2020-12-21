@@ -7,6 +7,7 @@ import {
 } from "mobx";
 import agent from "../api/agent";
 import { ICountryStatsHistory } from "../models/countrystathistory";
+import { ICovidFilter } from "../models/covidfilter";
 import { IOptions } from "../models/options";
 import { IStatsHistory } from "../models/statshistory";
 import { ITotals } from "../models/totals";
@@ -27,6 +28,8 @@ export default class CovidStore {
       dataForChart: action,
       getTotals: computed,
       getStateOptions: computed,
+      loadcountryStatHistory: action,
+      loadcountryStatLatest: action,
     });
 
     this.rootStore = rootStore;
@@ -38,8 +41,25 @@ export default class CovidStore {
   chartData: IStatsHistory[] = [];
   chartRegion: string = "India";
   totals: ITotals | null = null;
+  covidFilter: ICovidFilter = { state: "India", month: 0 };
+  monthOptions: IOptions[] = [
+    { key: "0", text: "Select month", value: "0" },
+    { key: "1", text: "January", value: "1" },
+    { key: "2", text: "February", value: "2" },
+    { key: "3", text: "March", value: "3" },
+    { key: "4", text: "April", value: "4" },
+    { key: "5", text: "May", value: "5" },
+    { key: "6", text: "June", value: "6" },
+    { key: "7", text: "July", value: "7" },
+    { key: "8", text: "August", value: "8" },
+    { key: "9", text: "September", value: "9" },
+    { key: "10", text: "October", value: "10" },
+    { key: "11", text: "November", value: "11" },
+    { key: "12", text: "December", value: "12" },
+  ];
 
   loadcountryStatHistory = async () => {
+    this.countryStatHistory = [];
     this.loadingHistoryStats = true;
     try {
       const result = await agent.covidstathistory.info();
@@ -70,7 +90,7 @@ export default class CovidStore {
           };
           this.countryStatHistory.push(countryStat);
         });
-        this.dataForChart("in");
+        this.dataForChart();
         this.loadingHistoryStats = false;
       });
     } catch (error) {
@@ -100,6 +120,7 @@ export default class CovidStore {
   };
 
   loadcountryStatLatest = async () => {
+    this.countryStatLatest = null;
     this.loadingLatestStats = true;
     try {
       const result = await agent.covidstatlatest.info();
@@ -107,7 +128,7 @@ export default class CovidStore {
       runInAction(() => {
         this.countryStatLatest = {
           countrystat: {
-            loc: "india",
+            loc: "India",
             day: stat.day,
             active:
               stat.summary.total -
@@ -133,25 +154,35 @@ export default class CovidStore {
     return lst.sort((x, y) => +new Date(x.day) - +new Date(y.day));
   }
 
-  dataForChart = (type: string) => {
+  dataForChart = () => {
+    this.chartData = [];
     if (this.countryStatHistory != null) {
-      if (type === "in") {
+      if (this.covidFilter.state === "India") {
         this.chartRegion = "India";
         this.chartData = this.countryStatHistory
           .map((stat) => stat.countrystat)
           .sort((x, y) => +new Date(x.day) - +new Date(y.day));
       } else {
         const lst: IStatsHistory[] | any = this.countryStatHistory
-          .map((stat) => stat.regional?.filter((x) => x.loc === type))
+          .map((stat) =>
+            stat.regional?.filter((x) => x.loc === this.covidFilter.state)
+          )
           .filter(function (ele) {
             return ele?.length! > 0;
           })
           .map((a) => a![0])
           .sort((x, y) => +new Date(x.day) - +new Date(y.day));
+
         this.chartData = lst;
-        this.chartRegion = type;
-        this.totals = this.getTotals;
       }
+
+      if (this.covidFilter.month > 0) {
+        this.chartData = this.chartData.filter(
+          (stats) => new Date(stats.day).getMonth() + 1 === 8
+        );
+      }
+      this.chartRegion = this.covidFilter.state;
+      this.totals = this.getTotals;
     }
   };
 
@@ -170,12 +201,21 @@ export default class CovidStore {
 
   get getTotals() {
     let region = this.chartData;
-    let lastIndex = region.length - 1;
-    return {
-      active: region[lastIndex].active,
-      confirmed: region[lastIndex].confirmed,
-      discharged: region[lastIndex].discharged,
-      deaths: region[lastIndex].deaths,
-    };
+    if (region.length > 0) {
+      let lastIndex = region.length - 1;
+      return {
+        active: region[lastIndex].active,
+        confirmed: region[lastIndex].confirmed,
+        discharged: region[lastIndex].discharged,
+        deaths: region[lastIndex].deaths,
+      };
+    } else {
+      return {
+        active: 0,
+        confirmed: 0,
+        discharged: 0,
+        deaths: 0,
+      };
+    }
   }
 }
