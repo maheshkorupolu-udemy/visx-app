@@ -15,6 +15,7 @@ import CovidDataList from "./CovidDataList";
 import CovidChart from "./CovidChart";
 import CovidTotals from "./CovidTotals";
 import Moment from "react-moment";
+import { Pie, PieChart, Tooltip } from "recharts";
 
 const CovidDashboard: React.FC = () => {
   const rootStore = useContext(RootStoreContext);
@@ -57,27 +58,8 @@ const CovidDashboard: React.FC = () => {
           </Grid.Column>
         </Grid.Row>
         <Grid.Row>
-          <Grid.Column width={8}>
+          <Grid.Column width={16}>
             <CovidTotals></CovidTotals>
-          </Grid.Column>
-          <Grid.Column width={8}>
-            <Divider hidden={true}></Divider>
-            <Select
-              placeholder="Select state"
-              options={getStateOptions}
-              onChange={(e, data) => {
-                covidFilter.state = data.value as string;
-                dataForChart();
-              }}
-            />
-            <Select
-              placeholder="Select month"
-              options={monthOptions}
-              onChange={(e, data) => {
-                covidFilter.month = data.value as number;
-                dataForChart();
-              }}
-            />
           </Grid.Column>
         </Grid.Row>
         <Grid.Row>
@@ -88,6 +70,59 @@ const CovidDashboard: React.FC = () => {
           </Grid.Column>
 
           <Grid.Column width={8}>
+            <Grid.Row>
+              <Grid.Column>
+                <Segment>
+                  <PieChart width={800} height={400}>
+                    <Pie
+                      isAnimationActive={false}
+                      dataKey={"confirmed"}
+                      data={countryStatLatest?.regional?.map((reg) => {
+                        return { name: reg.loc, confirmed: reg.confirmed };
+                      })}
+                      cx={200}
+                      cy={200}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      label
+                    />
+                    <Pie
+                      dataKey={"confirmed"}
+                      data={countryStatLatest?.regional?.map((reg) => {
+                        return { name: reg.loc, confirmed: reg.confirmed };
+                      })}
+                      cx={500}
+                      cy={200}
+                      innerRadius={40}
+                      outerRadius={80}
+                      fill="#82ca9d"
+                    />
+                    <Tooltip />
+                  </PieChart>
+                </Segment>
+              </Grid.Column>
+            </Grid.Row>
+            <Grid.Row>
+              <Grid.Column>
+                <Divider hidden={true}></Divider>
+                <Select
+                  placeholder="Select state"
+                  options={getStateOptions}
+                  onChange={(e, data) => {
+                    covidFilter.state = data.value as string;
+                    dataForChart();
+                  }}
+                />
+                <Select
+                  placeholder="Select month"
+                  options={monthOptions}
+                  onChange={(e, data) => {
+                    covidFilter.month = data.value as number;
+                    dataForChart();
+                  }}
+                />
+              </Grid.Column>
+            </Grid.Row>
             <Grid.Row>
               <Grid.Column>
                 <Container text textAlign="center">
