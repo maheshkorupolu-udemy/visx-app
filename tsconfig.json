@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -20,11 +16,8 @@
     "jsx": "react-jsx",
     "experimentalDecorators": true,
     "useDefineForClassFields": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "downlevelIteration": true
   },
-  "include": [
-    "src",
-    "./typings-custom/**/*.ts",
-    "craco.config.js"
-  ]
+  "include": ["src", "./typings-custom/**/*.ts", "craco.config.js"]
 }

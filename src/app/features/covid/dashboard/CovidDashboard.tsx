@@ -16,6 +16,7 @@ import CovidChart from "./CovidChart";
 import CovidTotals from "./CovidTotals";
 import Moment from "react-moment";
 import { Pie, PieChart, Tooltip } from "recharts";
+import { months } from "../../../common/options/monthOptions";
 
 const CovidDashboard: React.FC = () => {
   const rootStore = useContext(RootStoreContext);
@@ -24,11 +25,9 @@ const CovidDashboard: React.FC = () => {
     loadcountryStatHistory,
     loadcountryStatLatest,
     countryStatLatest,
-    chartRegion,
     getStateOptions,
     dataForChart,
     covidFilter,
-    monthOptions,
   } = rootStore.covidStore;
 
   useEffect(() => {
@@ -115,7 +114,7 @@ const CovidDashboard: React.FC = () => {
                 />
                 <Select
                   placeholder="Select month"
-                  options={monthOptions}
+                  options={months}
                   onChange={(e, data) => {
                     covidFilter.month = data.value as number;
                     dataForChart();
@@ -126,7 +125,7 @@ const CovidDashboard: React.FC = () => {
             <Grid.Row>
               <Grid.Column>
                 <Container text textAlign="center">
-                  <Header as="h4">{chartRegion}</Header>
+                  <Header as="h4">{covidFilter.state}</Header>
                 </Container>
               </Grid.Column>
             </Grid.Row>

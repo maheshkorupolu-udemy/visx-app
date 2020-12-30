@@ -1,6 +1,6 @@
 export interface ITotals {
   confirmed: number;
-  active: number;
+  readonly active: number;
   discharged: number;
   deaths: number;
 }
