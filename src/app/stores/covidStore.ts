@@ -161,7 +161,7 @@ export default class CovidStore {
   };
 
   get getStateOptions() {
-    let stateOptions: IOptions[] = [];
+    const stateOptions: IOptions[] = [];
     if (this.countryStatLatest != null) {
       const { regional } = this.countryStatLatest;
       regional?.forEach((region) => {
